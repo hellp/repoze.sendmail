@@ -115,6 +115,13 @@ class QueueProcessor(object):
         parser = Parser()
         message = parser.parse(fp)
         fromaddr = message['X-Actually-From']
+
+        # WORKAROUND for GH issue #7
+        # https://github.com/repoze/repoze.sendmail/issues/7
+        from email.header import decode_header
+        fromaddr = decode_header(fromaddr)[0][0]
+        # WORKAROUND END
+
         del message['X-Actually-From']
         toaddrs = tuple([a.strip() for a in
                          message['X-Actually-To'].split(',')])
